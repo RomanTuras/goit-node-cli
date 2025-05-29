@@ -1,0 +1,25 @@
+{
+  "name": "goit-node-cli",
+  "version": "1.0.0",
+  "description": "Node.js: Back End Development",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RomanTuras/goit-node-cli.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RomanTuras/goit-node-cli/issues"
+  },
+  "homepage": "https://github.com/RomanTuras/goit-node-cli#readme",
+  "dependencies": {
+    "commander": "^14.0.0",
+    "nanoid": "^5.1.5"
+  }
+}
