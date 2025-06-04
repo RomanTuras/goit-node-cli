@@ -2,8 +2,13 @@ import * as fs from "node:fs/promises";
 import path from "node:path";
 import { nanoid } from "nanoid";
 
-const contactsPath = path.join("db", "contacts.json");
+const contactsPath = path.resolve("db", "contacts.json");
 
+/**
+ * Writting contacts to file
+ * @param {Array} contacts
+ */
+const updateContacts = contacts => fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
 
 /**
  * Getting a list of contacts
@@ -25,9 +30,9 @@ export async function listContacts() {
  */
 export async function getContactById(contactId) {
   const contacts = await listContacts();
-  const contact = contacts.filter((contact) => contact.id == contactId);
+  const contact = contacts.find(contact => contact.id == contactId);
 
-  return contact.length > 0 ? contact[0] : null;
+  return contact || null;
 }
 
 
@@ -39,38 +44,52 @@ export async function getContactById(contactId) {
  */
 export async function removeContact(contactId) {
   const contacts = await listContacts();
-  const removedContact = contacts.filter((contact) => contact.id == contactId);
-  if (removedContact.length > 0) {
-    const newContacts = contacts.filter( contact => contact.id != contactId);
-    const text = JSON.stringify(newContacts);
-    await fs.writeFile(contactsPath, text);
-    return removedContact[0];
-  }
+  const index = contacts.findIndex( contact => contact.id == contactId);
 
-  return null;
+  if (index == -1) return null;
+
+  const [removedContact] = contacts.splice(index, 1);
+  await updateContacts(contacts);
+
+  return removedContact;
 }
-
 
 /**
  * Adding contact
  * 
- * @param {string} name
- * @param {string} email
- * @param {string} phone
+ * @param {Object} name, email, phone
  * @returns {Promise<Object>}
  */
-export async function addContact(name, email, phone) {
+export async function addContact(data) {
   const contacts = await listContacts();
   const contact = {
     "id": nanoid(),
-    "name":name,
-    "email":email,
-    "phone":phone
+    ...data
   };
   contacts.push(contact);
 
-  const text = JSON.stringify(contacts);
-  await fs.writeFile(contactsPath, text);
+  await updateContacts(contacts);
 
   return contact;
+}
+
+
+/**
+ * Updating contact
+ * 
+ * @param {string} contactId
+ * @param {Object} name, email, phone
+ * @returns {Promise<Object> || null}
+ */
+export async function updateContact(contactId, data) {  
+  const contacts = await listContacts();
+  const index = contacts.findIndex(contact => contact.id == contactId);
+
+  if (index == -1) return null;
+
+  contacts[index] = {...contacts[index], ...data};
+
+  await updateContacts(contacts);
+
+  return contacts[index];
 }
